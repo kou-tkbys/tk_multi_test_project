@@ -5,6 +5,8 @@
 // platformioの最新ライブラリにパッチが適応できない。設定の問題の可能性がある。
 // https://github.com/maxint-rd/TM16xx/releases/tag/v0.5.2110
 #include <TM1640.h>
+// 大好きなI2Cマルチプレクサ
+#include <TCA9548.h>
 
 /*
   u8g2ライブラリでSH1122のSPI接続のOLEDをつなげた場合のメモ
@@ -29,6 +31,7 @@
 U8G2_SH1122_256X64_F_4W_HW_SPI u8g2(U8G2_R0, PIN_SPI_SS, SH1112_PIN_DC,
                                     SH1112_PIN_RST);
 */
+TCA9548 MP(0x70);
 
 // TM1640を利用して作成した16連7セグLEDを接続する
 TM1640 module(2, 3, 16);  // data, clock, 16 digits
@@ -37,6 +40,8 @@ void setup() {
   Serial.begin(9600);
   Serial.println(__FILE__);
   Serial.println();
+
+  MP.begin();
 
   pinMode(LED_BUILTIN, OUTPUT);
 
@@ -47,6 +52,7 @@ void setup() {
 
 int64_t sum = 0;
 void loop() {
+  Serial.println(MP.isConnected());
   digitalWrite(LED_BUILTIN, HIGH);  // pico側のビルドインLED点灯
 
   // 謎の勢いでひたすらインクリメントした値を表示する
